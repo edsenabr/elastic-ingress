@@ -20,4 +20,4 @@ for deploying the solution, follow these simple steps:
 
 while the terraform script will deploy the basic infrastructure, the python script will configure the target groups of both load balancers to the right ips, discovering the private endpoints of all Elasticsearch clusters deployed to the same account. 
 
-In order to create the endpoint component on the transit VPC, use the 'service endpoint' output value of the terraform script. 
+In order to create the endpoint component on the transit VPC, use the 'service_endpoint' output value of the terraform script. 
