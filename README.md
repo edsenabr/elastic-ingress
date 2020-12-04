@@ -11,6 +11,9 @@ in order to deploy it, you'll need the following pre-requisites:
 - pip
 - AWS's boto3 python library
 
+> **DISCLAIMER**: This not a production ready system. It is meant only to educate in terms of what can be achieved with the components aforementioned. In order to understand AWS best practices to production topologies, please refer to [AWS Well Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+
+
 for deploying the solution, follow these simple steps:
 
 1. clone this repo
