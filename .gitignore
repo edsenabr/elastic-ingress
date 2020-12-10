@@ -1,2 +1,4 @@
 .terraform*
 terraform.*
+update_targets.zip
+builds/

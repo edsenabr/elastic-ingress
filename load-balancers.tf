@@ -1,11 +1,11 @@
-resource "aws_lb" "elastic_nlb" {
+resource "aws_lb" "nlb" {
   name = "elastic-nlb"
   internal = true
   load_balancer_type = "network"
   subnets = var.alb_subnets
 }
 
-resource "aws_lb" "elastic_alb" {
+resource "aws_lb" "alb" {
   name = "elastic-alb"
   internal = true
   load_balancer_type = "application"
@@ -13,8 +13,8 @@ resource "aws_lb" "elastic_alb" {
   subnets = var.alb_subnets
 }
 
-resource "aws_lb_target_group" "elastic_alb" {
-  name     = "elastic-alb"
+resource "aws_lb_target_group" "nlb" {
+  name     = "nlb-to-alb"
   port     = 443
   protocol = "TLS"
   vpc_id   = var.vpc_id
@@ -30,8 +30,8 @@ resource "aws_lb_target_group" "elastic_alb" {
 	}
 }
 
-resource "aws_lb_listener" "elastic_nlb_listener" {
-  load_balancer_arn = aws_lb.elastic_nlb.arn
+resource "aws_lb_listener" "nlb" {
+  load_balancer_arn = aws_lb.nlb.arn
   port              = "443"
   protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -39,12 +39,12 @@ resource "aws_lb_listener" "elastic_nlb_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.elastic_alb.arn
+    target_group_arn = aws_lb_target_group.nlb.arn
   }
 }
 
-resource "aws_lb_listener" "elastic_alb_listener" {
-  load_balancer_arn = aws_lb.elastic_alb.arn
+resource "aws_lb_listener" "alb" {
+  load_balancer_arn = aws_lb.alb.arn
   port              = "443"
   protocol          = "HTTPS"
   certificate_arn   = var.alb_cert_arn
@@ -61,7 +61,7 @@ resource "aws_lb_listener" "elastic_alb_listener" {
 }
 
 resource "aws_lb_listener_rule" "health_check" {
-  listener_arn = aws_lb_listener.elastic_alb_listener.arn
+  listener_arn = aws_lb_listener.alb.arn
 
   action {
     type = "fixed-response"
@@ -82,7 +82,7 @@ resource "aws_lb_listener_rule" "health_check" {
 
 resource "aws_vpc_endpoint_service" "endpoint_service" {
   acceptance_required        = false
-  network_load_balancer_arns = [aws_lb.elastic_nlb.arn]
+  network_load_balancer_arns = [aws_lb.nlb.arn]
 }
 
 resource "aws_vpc_endpoint_service_allowed_principal" "consumer_account" {
