@@ -1,5 +1,8 @@
 import re
 import boto3
+import random
+import string
+
 ec2 = boto3.client('ec2')
 elbv2 = boto3.client('elbv2')
 es = boto3.client('es')
@@ -52,19 +55,27 @@ def list_tg_registrations(tg_arn):
 def list_target_groups(existing_domains):
 	groups = {}
 	for TargetGroup in elbv2.describe_target_groups()['TargetGroups']:
-		if TargetGroup['TargetGroupName'].startswith('elastic-'): 
-					
-			groups[TargetGroup['TargetGroupName']] = {
-				'TargetGroupArn': TargetGroup['TargetGroupArn']
-			}
-
-			try:
-				domain = existing_domains[TargetGroup['TargetGroupName'][8:]]
-				print("found %s on %s" % (domain['DomainName'], TargetGroup['TargetGroupArn']))
-				domain['TargetGroupArn'] = TargetGroup['TargetGroupArn']
-				groups[TargetGroup['TargetGroupName']]['DomainName'] = domain['DomainName']
-			except KeyError:
-				pass
+		if TargetGroup['TargetGroupName'].startswith('alb-es-'): 
+			tags = elbv2.describe_tags(
+    		ResourceArns=[TargetGroup['TargetGroupArn']]
+			)['TagDescriptions'][0]['Tags']
+			tag = next(filter(lambda tag: tag['Key']=='ES-DomainName', tags), None)
+			if tag is not None:
+				DomainName = tag['Value']
+				groups[DomainName] = {
+					'TargetGroupArn': TargetGroup['TargetGroupArn']
+				}
+				try:
+					domain = existing_domains[DomainName]
+					print("found %s on %s" % (DomainName, TargetGroup['TargetGroupArn']))
+					domain['TargetGroupArn'] = TargetGroup['TargetGroupArn']
+					groups[DomainName]['DomainName'] = DomainName
+				except KeyError:
+					pass
+			else:
+				groups[TargetGroup['TargetGroupArn']] = {
+					'TargetGroupArn': TargetGroup['TargetGroupArn']
+				}
 
 	return groups
 
@@ -108,9 +119,10 @@ def deregister_tg_targets (tg_arn, ips):
 		)
 
 def create_target_group(domain):
-	print("... creating target group elastic-%s" % domain['DomainName'])
+	name = "alb-es-%s-tg"  % ''.join(random.choice(string.hexdigits) for i in range(21))
+	print("... creating target group %s for domain %s" % (name, domain['DomainName']))
 	arn = elbv2.create_target_group(
-		Name='elastic-%s' % domain['DomainName'],
+		Name=name,
 		Protocol='HTTPS',
 		Port=443,
 		VpcId=domain['VPCId'],
@@ -123,7 +135,11 @@ def create_target_group(domain):
 		Matcher={
 				'HttpCode': '401'
 		},
-		TargetType='ip'
+		TargetType='ip',
+		Tags=[{
+            'Key': 'ES-DomainName',
+            'Value': domain['DomainName']
+    }]
 	)['TargetGroups'][0]['TargetGroupArn']
 	return arn
 

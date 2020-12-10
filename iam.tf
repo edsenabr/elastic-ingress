@@ -35,7 +35,7 @@ resource "aws_iam_policy" "lambda" {
                 "elasticloadbalancing:DeregisterTargets"
             ],
             "Resource": [
-                "arn:aws:elasticloadbalancing:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:targetgroup/elastic-*/*",
+                "arn:aws:elasticloadbalancing:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:targetgroup/alb-es-*-tg/*",
                 "${aws_lb_target_group.nlb.arn}"
             ]
         },
@@ -47,7 +47,7 @@ resource "aws_iam_policy" "lambda" {
                 "elasticloadbalancing:DeleteTargetGroup"
             ],
             "Resource": [
-                "arn:aws:elasticloadbalancing:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:targetgroup/elastic-*/*"
+                "arn:aws:elasticloadbalancing:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:targetgroup/alb-es-*-tg/*"
             ]
         },
         {
@@ -71,6 +71,7 @@ resource "aws_iam_policy" "lambda" {
                 "es:DescribeElasticsearchDomains",
                 "ec2:DescribeNetworkInterfaces",
                 "elasticloadbalancing:DescribeListeners",
+                "elasticloadbalancing:DescribeTags",
                 "elasticloadbalancing:DescribeTargetHealth",
                 "elasticloadbalancing:DescribeTargetGroups",
                 "elasticloadbalancing:DescribeRules"
