@@ -7,21 +7,21 @@ variable "aws_profile" {
 }
 
 variable "vpc_id" {
-    default = "vpc-0c615fe09521a0a6d"
+    default = "vpc-XXXXXXXXXXXXXXXXX"
 }
 
 variable "alb_sg_arn" {
 	type    = list(string)
-  default = ["sg-02e3e7a269dd70fed"]	
+    default = ["sg-XXXXXXXXXXXXXXXXX"]	
 }
 
 variable "alb_subnets" {
 	type    = list(string)
-  default = ["subnet-07e27b8af73f71d71","subnet-08f790884bd2dd109"]	
+    default = ["subnet-XXXXXXXXXXXXXXXXX","subnet-XXXXXXXXXXXXXXXXX"]	
 }
 
 variable "alb_cert_arn" {
-    default = "arn:aws:acm:sa-east-1:279835290717:certificate/03782419-31b2-495a-94f4-a9e0874b2917"
+    default = "arn:aws:acm:sa-east-1:XXXXXXXXXXXX:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 }
 
 variable "lambda_role_arn" {
@@ -29,5 +29,5 @@ variable "lambda_role_arn" {
 }
 
 variable "consumer_account_arn" {
-    default = "arn:aws:iam::837108680928:root"
+    default = "arn:aws:iam::XXXXXXXXXXXX:root"
 }
